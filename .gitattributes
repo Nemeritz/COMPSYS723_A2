@@ -41,7 +41,5 @@
 *.out binary
 *.app binary
 
-# Documents
-*.docx binary
 
 
