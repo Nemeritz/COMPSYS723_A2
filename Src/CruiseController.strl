@@ -1,0 +1,96 @@
+module SpeedLimiter:
+
+input Speed : float;
+constant SpeedMin := 30.0 : float;
+constant SpeedMax := 150.0 : float; 
+
+end module;
+
+% This module controls the operation of the motors and is responsible for
+% opening and closing of doors and stopping the cabin
+% It essentially encodes an FSM
+% See design document for FSM details
+% It also handshakes with Request resolver to read a request and also outputs when a request is serviced (using the StoppedAtFloor
+% valued signal
+module CruiseStateManagementFSM:
+
+input AccPressed;
+input BrakePressed;
+input CruiseResume;
+input CruiseOff;
+input CruiseOn;
+output CruiseState : integer;
+
+% 
+input SpeedBetweenLimits;
+
+
+
+% encoding of the states of an FSM performing control
+% state 1 = idle, state 2 = going up, state 4 = going down and state 3 equal to door open
+% Note the use of pre on request input to enable composition with request resolver
+% initial condition
+emit DoorOpen;
+emit MotorDirectionIdle;
+loop
+trap T1 in
+% Note the use of pre for achieving causal composition between the two modules
+await pre(request);
+var state := 1 : integer in
+loop
+    pause;
+    trap T2 in 
+    % await FloorSensor;
+            % Idle state request = FloorSensor
+            if state = 1 then
+                % emit DoorOpen;
+                emit MotorDirectionIdle;
+%                 pause;
+                if pre(?request) > ?FloorSensor then
+                    state := 2; exit T2;
+                end if;
+                if pre(?request) < ?FloorSensor then
+                    state := 4; exit T2;
+                end if;
+                exit T2; 
+            end if;
+            % Going Up State request > FloorSensor
+            if state = 2 then
+                emit MotorDirectionUp;
+%                 pause;
+                if pre(?request) = ?FloorSensor then
+                    state := 3; exit T2;
+                end if;
+                exit T2;
+            end if;
+            % Door open state
+            if state = 3 then
+            var currentFloor := 0 : integer in
+                emit MotorDirectionIdle;
+                emit DoorOpen;
+                emit StartTimer;
+                await TimerExpired;
+                emit DoorClose;
+                % emit ServiceDone;
+                exit T1;
+                % state:=1; exit T2;
+                ||
+                currentFloor := ?FloorSensor;
+                sustain StoppedAtFloor(currentFloor);
+             end var
+            end if;
+            % going down state
+            if state = 4 then
+                emit MotorDirectionDown;
+%                 pause;
+                if pre(?request) = ?FloorSensor then
+                    state := 3; exit T2;
+                end if;
+                exit T2;
+            end if;
+     end trap
+end loop
+end var
+end trap
+end loop
+end module
