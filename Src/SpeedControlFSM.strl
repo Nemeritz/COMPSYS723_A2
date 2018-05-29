@@ -4,7 +4,7 @@
 % See design document for FSM details
 module SpeedControlFSM:
 
-input CruiseStateOn;
+input CruiseStateOff;
 output SpeedManage;
 
 % encoding of the states of an FSM performing control
@@ -20,7 +20,7 @@ loop
 	pause;
 	    %no speed control management	
             if state = 1 then
-                present not CruiseStateOn then
+                present CruiseStateOff then
 			state := 2;
 			emit SpeedManage;
 			exit T2;
@@ -28,7 +28,7 @@ loop
             end if;
             %speed control management
             if state = 2 then
-		present CruiseStateOn then
+		present not CruiseStateOff then
 			state := 1;
 			exit T2;
 		end present;
