@@ -4,7 +4,7 @@
 % See design document for FSM details
 module CruiseStateControlFSM:
 
-input AccPressed;
+input AccelPressed;
 input BrakePressed;
 input CruiseResume;
 input CruiseOff;
@@ -53,7 +53,7 @@ loop
 			emit CruiseStateStandby;
 			exit T2;
 		end present;
-		present (AccPressed or (not SpeedBetweenLimits)) then
+		present (AccelPressed or (not SpeedBetweenLimits)) then
 			state := 4;
 			emit CruiseStateDisabled;
             		exit T2;
@@ -67,12 +67,12 @@ loop
 			emit CruiseStateOff;
 			exit T2;
 		end present;
-		present CruiseResume and ((not AccPressed) and SpeedBetweenLimits) then
+		present CruiseResume and ((not AccelPressed) and SpeedBetweenLimits) then
 			state := 2;
 			emit CruiseStateOn;
 			exit T2;
 		end present;
-		present (CruiseResume and ((not SpeedBetweenLimits) or AccPressed)) then
+		present (CruiseResume and ((not SpeedBetweenLimits) or AccelPressed)) then
 			state := 4;
 			emit CruiseStateDisabled;
        			exit T2;
@@ -91,7 +91,7 @@ loop
 			emit CruiseStateStandby;
 			exit T2;
 		end present;
-		present (SpeedBetweenLimits and (not AccPressed)) then
+		present (SpeedBetweenLimits and (not AccelPressed)) then
 			state := 2;
 			emit CruiseStateOn;
        			exit T2;

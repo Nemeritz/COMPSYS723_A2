@@ -3,18 +3,18 @@
 
 module PedalInterface:
 
-input BrakeSensor : float;
-input AccSensor : float;
+input Brake : float;
+input Accel : float;
 output BrakePressed;
-output AccPressed;
+output AccelPressed;
 constant PedalThreshold = 3.0f : float;
 
 loop
-    if ?BrakeSensor > PedalThreshold then
+    if ?Brake > PedalThreshold then
         emit BrakePressed;
     end if;
     present BrakePressed else
-        if ?AccSensor > PedalThreshold then
+        if ?Accel > PedalThreshold then
                 emit AccPressed;
         end if;
     end present;
