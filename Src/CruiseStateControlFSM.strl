@@ -9,7 +9,10 @@ input BrakePressed;
 input CruiseResume;
 input CruiseOff;
 input CruiseOn;
-output CruiseState := 1 : integer;
+output CruiseStateOff;
+output CruiseStateOn;
+output CruiseStateStandby;
+output CruiseStateDisabled;
 
 % 
 input SpeedBetweenLimits;
@@ -33,67 +36,67 @@ loop
             if state = 1 then
                 present (CruiseOn and SpeedBetweenLimits) then
 			state := 2;
-			emit CruiseState(2);
+			emit CruiseStateOn;
 			exit T2;
 		end present;
-		emit CruiseState(1);
+		CruiseStateOff;
             end if;
             % Cruise control is on
             if state = 2 then
 		present CruiseOff then
 			state := 1;
-			emit CruiseState(1);
+			emit CruiseStateOff;
 			exit T2;
 		end present;
               	present BrakePressed then
 			state := 3;
-			emit CruiseState(3);
+			emit CruiseStateStandby;
 			exit T2;
 		end present;
 		present (AccPressed or (not SpeedBetweenLimits)) then
 			state := 4;
-			emit CruiseState(4);
+			emit CruiseStateDisabled;
             		exit T2;
 		end present;
-		emit CruiseState(2);
+		emit CruiseStateOn;
             end if;
             % Cruise Control Standby
             if state = 3 then
 		present CruiseOff then
 			state := 1;
-			emit CruiseState(1);
+			emit CruiseStateOff;
 			exit T2;
 		end present;
 		present CruiseResume and ((not AccPressed) and SpeedBetweenLimits) then
 			state := 2;
-			emit CruiseState(2);
+			emit CruiseStateOn;
 			exit T2;
 		end present;
 		present (CruiseResume and ((not SpeedBetweenLimits) or AccPressed)) then
 			state := 4;
-			emit CruiseState(4);
+			emit CruiseStateDisabled;
        			exit T2;
 		end present;
-		emit CruiseState(3);
+		emit CruiseStateStandby;
             end if;
             % Cruise Control Disabled
             if state = 4 then
 		present CruiseOff then
 			state := 1;
-			emit CruiseState(1);
+			emit CruiseStateOn;
 			exit T2;
 		end present;
 		present BrakePressed then 			
 			state := 3;
-			emit CruiseState(3);
+			emit CruiseStateStandby;
 			exit T2;
 		end present;
 		present (SpeedBetweenLimits and (not AccPressed)) then
 			state := 2;
-			emit CruiseState(2);
+			emit CruiseStateOn;
        			exit T2;
 		end present;
-		emit CruiseState(4);
+		emit CruiseStateDisabled;
             end if;
      end trap
 end loop
