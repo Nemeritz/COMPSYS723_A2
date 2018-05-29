@@ -1,0 +1,42 @@
+% This module controls the operation of the motors and is responsible for
+% Controlling the states of the cruise control
+% It essentially encodes an FSM
+% See design document for FSM details
+module CruiseSpeedControlFSM:
+
+input CruiseStateOff;
+output CruiseSpeedManage;
+
+% encoding of the states of an FSM performing control
+% state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
+% Note the use of pre on request input to enable composition with request resolver
+% initial condition
+loop
+trap T1 in
+% Note the use of pre for achieving causal composition between the two modules
+var state := 1 : integer in
+loop
+    trap T2 in 
+	pause;
+	    %no Cruise speed adjustment	
+            if state = 1 then
+                present not CruiseStateOff then
+			state := 2;
+			emit CruiseSpeedManage;
+			exit T2;
+		end present;
+            end if;
+            %Cruise speed adjustment	
+            if state = 2 then
+		present CruiseStateOff then
+			state := 1;
+			exit T2;
+		end present;
+		emit CruiseSpeedManage;
+            end if;
+     end trap
+end loop
+end var
+end trap
+end loop
+end module
