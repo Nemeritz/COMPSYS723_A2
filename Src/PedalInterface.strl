@@ -1,0 +1,23 @@
+% Behavior of the pedals when both are pressed is that only the
+% brake will activate (saftey feature)
+
+module PedalInterface:
+
+input BrakeSensor : float;
+input AccSensor : float;
+output BrakePressed;
+output AccPressed;
+constant PedalThreshold = 3.0f : float;
+
+loop
+    if ?BrakeSensor > PedalThreshold then
+        emit BrakePressed;
+    end if;
+    present BrakePressed else
+        if ?AccSensor > PedalThreshold then
+                emit AccPressed;
+        end if;
+    end present;
+each tick;
+
+end module
