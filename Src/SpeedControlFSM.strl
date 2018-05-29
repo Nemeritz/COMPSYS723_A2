@@ -32,6 +32,7 @@ loop
 			state := 1;
 			exit T2;
 		end present;
+		emit SpeedManage;
             end if;
      end trap
 end loop
