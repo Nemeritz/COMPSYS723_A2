@@ -1,0 +1,103 @@
+% This module controls the operation of the motors and is responsible for
+% Controlling the states of the cruise control
+% It essentially encodes an FSM
+% See design document for FSM details
+module CruiseStateControlFSM:
+
+input AccPressed;
+input BrakePressed;
+input CruiseResume;
+input CruiseOff;
+input CruiseOn;
+output CruiseState := 1 : integer;
+
+% 
+input SpeedBetweenLimits;
+
+
+
+% encoding of the states of an FSM performing control
+% state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
+% Note the use of pre on request input to enable composition with request resolver
+% initial condition
+loop
+trap T1 in
+% Note the use of pre for achieving causal composition between the two modules
+var state := 1 : integer in
+loop
+    
+    trap T2 in 
+	pause;    
+	% await FloorSensor;
+            % Cruise control off
+            if state = 1 then
+                present (CruiseOn and SpeedBetweenLimits) then
+			state := 2;
+			emit CruiseState(2);
+			exit T2;
+		end present;
+		emit CruiseState(1);
+            end if;
+            % Cruise control is on
+            if state = 2 then
+		present CruiseOff then
+			state := 1;
+			emit CruiseState(1);
+			exit T2;
+		end present;
+              	present BrakePressed then
+			state := 3;
+			emit CruiseState(3);
+			exit T2;
+		end present;
+		present (AccPressed or (not SpeedBetweenLimits)) then
+			state := 4;
+			emit CruiseState(4);
+            		exit T2;
+		end present;
+		emit CruiseState(2);
+            end if;
+            % Cruise Control Standby
+            if state = 3 then
+		present CruiseOff then
+			state := 1;
+			emit CruiseState(1);
+			exit T2;
+		end present;
+		present CruiseResume and ((not AccPressed) and SpeedBetweenLimits) then
+			state := 2;
+			emit CruiseState(2);
+			exit T2;
+		end present;
+		present (CruiseResume and ((not SpeedBetweenLimits) or AccPressed)) then
+			state := 4;
+			emit CruiseState(4);
+       			exit T2;
+		end present;
+		emit CruiseState(3);
+            end if;
+            % Cruise Control Disabled
+            if state = 4 then
+		present CruiseOff then
+			state := 1;
+			emit CruiseState(1);
+			exit T2;
+		end present;
+		present BrakePressed then 			
+			state := 3;
+			emit CruiseState(3);
+			exit T2;
+		end present;
+		present (SpeedBetweenLimits and (not AccPressed)) then
+			state := 2;
+			emit CruiseState(2);
+       			exit T2;
+		end present;
+		emit CruiseState(4);
+            end if;
+     end trap
+end loop
+end var
+end trap
+end loop
+end module
