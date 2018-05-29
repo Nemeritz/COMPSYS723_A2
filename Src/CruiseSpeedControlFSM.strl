@@ -5,6 +5,12 @@
 module CruiseSpeedControlFSM:
 
 input CruiseStateOff;
+input Set;
+input QuickAccel;
+input QuickDecel;
+output SetSpeed;
+output AccelSpeed;
+output DecelSpeed;
 output CruiseSpeedManage;
 
 % encoding of the states of an FSM performing control
@@ -31,6 +37,15 @@ loop
 		present CruiseStateOff then
 			state := 1;
 			exit T2;
+		end present;
+		present QuickAccel then
+			emit AccelSpeed;
+		end present;
+		present QuickDecel then
+			emit DecelSpeed;
+		end present;
+		present Set then
+			emit SetSpeed;
 		end present;
 		emit CruiseSpeedManage;
             end if;
