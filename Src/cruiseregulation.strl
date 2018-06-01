@@ -2,10 +2,14 @@
 % Controlling the states of the cruise control
 % It essentially encodes an FSM
 % See design document for FSM details
-module SpeedControlFSM:
+module cruiseregulation:
+function  regulateThrottle(integer, float, float) : float;
 
-input CruiseStateOn;
-output SpeedManage;
+input SpeedManage;
+input CruiseSpeed : float;
+input Speed : float;
+
+output ThrottleCmd : float;
 
 % encoding of the states of an FSM performing control
 % state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
@@ -14,29 +18,16 @@ output SpeedManage;
 loop
 trap T1 in
 % Note the use of pre for achieving causal composition between the two modules
-var state := 1 : integer in
 loop
     trap T2 in 
 	pause;
-	    %no speed control management	
-            if state = 1 then
-                present CruiseStateOn then
-			state := 2;
-			emit SpeedManage;
-			exit T2;
+		present SpeedManage then
+			emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed));
+		else
+			emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed));
 		end present;
-            end if;
-            %speed control management
-            if state = 2 then
-		present not CruiseStateOn then
-			state := 1;
-			exit T2;
-		end present;
-		emit SpeedManage;
-            end if;
      end trap
 end loop
-end var
 end trap
 end loop
 end module
