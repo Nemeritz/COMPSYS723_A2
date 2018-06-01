@@ -2,10 +2,16 @@
 % Controlling the states of the cruise control
 % It essentially encodes an FSM
 % See design document for FSM details
-module SpeedControlFSM:
+module CruiseSpeedModule:
 
 input CruiseState : integer;
-output SpeedManage;
+input Set;
+input QuickAccel;
+input QuickDecel;
+output SetSpeed;
+output AccelSpeed;
+output DecelSpeed;
+output CruiseSpeedManage;
 
 % encoding of the states of an FSM performing control
 % state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
@@ -18,21 +24,30 @@ var state := 1 : integer in
 loop
     trap T2 in 
 	pause;
-	    %no speed control management	
+	    %no Cruise speed adjustment	
             if state = 1 then
-                if ?CruiseState = 2 then
+                if not (?CruiseState = 1)  then
 			state := 2;
-			emit SpeedManage;
+			emit CruiseSpeedManage;
 			exit T2;
 		end if;
             end if;
-            %speed control management
+            %Cruise speed adjustment	
             if state = 2 then
-		if not (?CruiseState = 2) then
+		if ?CruiseState = 1 then
 			state := 1;
 			exit T2;
 		end if;
-		emit SpeedManage;
+		present QuickAccel then
+			emit AccelSpeed;
+		end present;
+		present QuickDecel then
+			emit DecelSpeed;
+		end present;
+		present Set then
+			emit SetSpeed;
+		end present;
+		emit CruiseSpeedManage;
             end if;
      end trap
 end loop

@@ -9,12 +9,13 @@ input BrakePressed;
 input Resume;
 input Off;
 input On;
+output CruiseState := 1 : integer;
 output CruiseStateOff;
 output CruiseStateOn;
 output CruiseStateStandby;
 output CruiseStateDisabled;
 
-% 
+%
 input SpeedBetweenLimits;
 
 
@@ -28,74 +29,88 @@ trap T1 in
 % Note the use of pre for achieving causal composition between the two modules
 var state := 1 : integer in
 loop
-    
-    trap T2 in 
-	pause;    
+
+    trap T2 in
+	pause;
 	% await FloorSensor;
             % Cruise control off
             if state = 1 then
                 present (On and SpeedBetweenLimits) then
 			state := 2;
+			emit CruiseState(state);
 			emit CruiseStateOn;
 			exit T2;
 		end present;
-		CruiseStateOff;
+		emit CruiseState(state);
+		emit CruiseStateOff;
             end if;
             % Cruise control is on
             if state = 2 then
 		present Off then
 			state := 1;
+			emit CruiseState(state);
 			emit CruiseStateOff;
 			exit T2;
 		end present;
               	present BrakePressed then
 			state := 3;
+			emit CruiseState(state);
 			emit CruiseStateStandby;
 			exit T2;
 		end present;
 		present (AccelPressed or (not SpeedBetweenLimits)) then
 			state := 4;
+			emit CruiseState(state);
 			emit CruiseStateDisabled;
             		exit T2;
 		end present;
+		emit CruiseState(state);
 		emit CruiseStateOn;
             end if;
             % Cruise Control Standby
             if state = 3 then
 		present Off then
 			state := 1;
+			emit CruiseState(state);
 			emit CruiseStateOff;
 			exit T2;
 		end present;
 		present Resume and ((not AccelPressed) and SpeedBetweenLimits) then
 			state := 2;
+			emit CruiseState(state);
 			emit CruiseStateOn;
 			exit T2;
 		end present;
 		present (Resume and ((not SpeedBetweenLimits) or AccelPressed)) then
 			state := 4;
+			emit CruiseState(state);
 			emit CruiseStateDisabled;
        			exit T2;
 		end present;
+		emit CruiseState(state);
 		emit CruiseStateStandby;
             end if;
             % Cruise Control Disabled
             if state = 4 then
 		present Off then
 			state := 1;
+			emit CruiseState(state);
 			emit CruiseStateOn;
 			exit T2;
 		end present;
-		present BrakePressed then 			
+		present BrakePressed then
 			state := 3;
+			emit CruiseState(state);
 			emit CruiseStateStandby;
 			exit T2;
 		end present;
 		present (SpeedBetweenLimits and (not AccelPressed)) then
 			state := 2;
+			emit CruiseState(state);
 			emit CruiseStateOn;
        			exit T2;
 		end present;
+		emit CruiseState(state);
 		emit CruiseStateDisabled;
             end if;
      end trap

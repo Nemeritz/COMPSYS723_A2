@@ -4,7 +4,7 @@
 % See design document for FSM details
 module CruiseSpeedControlFSM:
 
-input CruiseStateOff;
+input CruiseState : integer;
 input Set;
 input QuickAccel;
 input QuickDecel;
@@ -26,18 +26,18 @@ loop
 	pause;
 	    %no Cruise speed adjustment	
             if state = 1 then
-                present not CruiseStateOff then
+                if not (?CruiseState = 1)  then
 			state := 2;
 			emit CruiseSpeedManage;
 			exit T2;
-		end present;
+		end if;
             end if;
             %Cruise speed adjustment	
             if state = 2 then
-		present CruiseStateOff then
+		if ?CruiseState = 1 then
 			state := 1;
 			exit T2;
-		end present;
+		end if;
 		present QuickAccel then
 			emit AccelSpeed;
 		end present;

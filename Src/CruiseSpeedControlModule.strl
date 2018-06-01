@@ -1,0 +1,48 @@
+% This module controls the operation of the motors and is responsible for
+% Controlling the states of the cruise control
+% It essentially encodes an FSM
+% See design document for FSM details
+module CruiseSpeedControlModule:
+
+input SetSpeed1;
+
+%input Set1;
+%input QuickAccel1;
+%input QuickDecel1;
+%input CruiseState1 : integer;
+input Speed1 : float;
+output CruiseSpeed1 := 40.0f : float;
+%output CruiseSpeedManage1;
+
+%signal SetSpeed1, DecelSpeed1, AccelSpeed1 
+%in
+
+%	loop
+%		present CruiseSpeedManage1 then
+%			%emit CruiseSpeedManage1;
+%		end present;
+%		pause
+%	end loop
+%||
+%	run CruiseSpeedControlFSM [signal CruiseState1 / CruiseState;
+%							    signal Set1 / Set;
+%							    signal QuickAccel1 / QuickAccel;
+%							    signal QuickDecel1 / QuickDecel;
+%							    signal SetSpeed1 / SetSpeed;
+%							    signal AccelSpeed1 / AccelSpeed;
+%							    signal DecelSpeed1 / DecelSpeed;
+%							    signal CruiseSpeedManage1 / CruiseSpeedManage]
+%||
+%	run QuickDecelCruiseSpeed [signal QuickDecel1 / QuickDecel;
+%							    signal Speed1 / Speed;
+%							    signal CruiseSpeed1 / CruiseSpeed]
+%||
+%	run QuickAccelCruiseSpeed [signal QuickAccel1 / QuickAccel;
+%							    signal Speed1 / Speed;
+%							    signal CruiseSpeed1 / CruiseSpeed]
+%||
+	run SetCruiseSpeed1/SetCruiseSpeed [signal SetSpeed1 / SetSpeed;
+					    signal Speed1 / Speed;
+					    signal CruiseSpeed1 / CruiseSpeed];
+%end signal
+end module
