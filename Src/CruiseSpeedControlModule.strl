@@ -1,21 +1,144 @@
+%NEW MODULE
+module SetCruiseSpeed:
+
+input SetSpeed;
+input Speed : float;
+output CruiseSpeed : float;
+constant SpeedMin = 30.0f : float;
+constant SpeedMax = 150.0f : float; 
+
+loop
+	present (SetSpeed) then
+		if ?Speed > SpeedMin and ?Speed < SpeedMax then
+			emit CruiseSpeed(?Speed);
+		end if;
+	end present;
+each tick;
+
+end module
+
+%NEW MODULE
+module QuickDecelCruiseSpeed:
+
+input QuickDecel;
+input Speed : float;
+output CruiseSpeed : float;
+constant SpeedInc = 2.5f : float; 
+constant SpeedMin = 30.0f : float;
+
+loop
+	present (QuickDecel) then
+		if (?Speed - SpeedInc) > SpeedMin then
+			emit CruiseSpeed(?Speed - SpeedInc);
+		end if;
+	end present;
+each tick;
+
+end module
+
+%NEW MODULE
+module QuickAccelCruiseSpeed:
+
+input QuickAccel;
+input Speed : float;
+output CruiseSpeed : float;
+constant SpeedInc = 2.5f : float; 
+constant SpeedMax = 150.0f : float;
+
+loop
+	present (QuickAccel) then
+		if (pre(?Speed) + SpeedInc) < SpeedMax then
+			emit CruiseSpeed(pre(?Speed) + SpeedInc);
+		end if;
+	end present;
+each tick;
+
+end module
+
+%NEW MODULE
 % This module controls the operation of the motors and is responsible for
 % Controlling the states of the cruise control
 % It essentially encodes an FSM
 % See design document for FSM details
+module CruiseSpeedControlFSM:
+
+input CruiseState : integer;
+input Set;
+input QuickAccel;
+input QuickDecel;
+output SetSpeed;
+output AccelSpeed;
+output DecelSpeed;
+output CruiseSpeedManage;
+
+% encoding of the states of an FSM performing control
+% state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
+% Note the use of pre on request input to enable composition with request resolver
+% initial condition
+loop
+trap T1 in
+% Note the use of pre for achieving causal composition between the two modules
+var state := 1 : integer in
+loop
+    trap T2 in 
+	pause;
+	    %no Cruise speed adjustment	
+            if state = 1 then
+                if not (?CruiseState = 1)  then
+			state := 2;
+			emit CruiseSpeedManage;
+			exit T2;
+		end if;
+            end if;
+            %Cruise speed adjustment	
+            if state = 2 then
+		if ?CruiseState = 1 then
+			state := 1;
+			exit T2;
+		end if;
+		present QuickAccel then
+			emit AccelSpeed;
+		end present;
+		present QuickDecel then
+			emit DecelSpeed;
+		end present;
+		present Set then
+			emit SetSpeed;
+		end present;
+		emit CruiseSpeedManage;
+            end if;
+     end trap
+end loop
+end var
+end trap
+end loop
+end module
+
+%TOP MODULE
 module CruiseSpeedControlModule:
 
-input SetSpeed1;
 
 %input Set1;
 %input QuickAccel1;
 %input QuickDecel1;
 %input CruiseState1 : integer;
-input Speed1 : float;
-output CruiseSpeed1 := 40.0f : float;
+%input Speed1 : float;
+%output CruiseSpeed1 := 40.0f : float;
 %output CruiseSpeedManage1;
 
 %signal SetSpeed1, DecelSpeed1, AccelSpeed1 
 %in
+
+input Set;
+input QuickAccel;
+input QuickDecel;
+input CruiseState : integer;
+input Speed : float;
+output CruiseSpeed := 40.0f : float;
+output CruiseSpeedManage;
+
+signal SetSpeed, DecelSpeed, AccelSpeed 
+in
 
 %	loop
 %		present CruiseSpeedManage1 then
@@ -32,17 +155,23 @@ output CruiseSpeed1 := 40.0f : float;
 %							    signal AccelSpeed1 / AccelSpeed;
 %							    signal DecelSpeed1 / DecelSpeed;
 %							    signal CruiseSpeedManage1 / CruiseSpeedManage]
-%||
+run CruiseSpeedControlFSM
+
+||
 %	run QuickDecelCruiseSpeed [signal QuickDecel1 / QuickDecel;
 %							    signal Speed1 / Speed;
 %							    signal CruiseSpeed1 / CruiseSpeed]
-%||
+run QuickDecelCruiseSpeed
+
+||
+
+run QuickAccelCruiseSpeed
 %	run QuickAccelCruiseSpeed [signal QuickAccel1 / QuickAccel;
 %							    signal Speed1 / Speed;
 %							    signal CruiseSpeed1 / CruiseSpeed]
-%||
-	run SetCruiseSpeed1/SetCruiseSpeed [signal SetSpeed1 / SetSpeed;
-					    signal Speed1 / Speed;
-					    signal CruiseSpeed1 / CruiseSpeed];
-%end signal
+||
+	run SetCruiseSpeed
+end signal
 end module
+
+
