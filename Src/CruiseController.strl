@@ -1,3 +1,10 @@
+% >>> CRUSECONTROLLER_STRL
+
+% We define module interconnections here for ease of use in development.
+% This also gives a high level overview of the whole system at a glance.
+
+% ThrottleControlModule Sub-Module
+% Manages the speed of the vehicle via PID algorithm or via Accelerator
 module ThrottleControlModule:
 
 input AccelPressed, BrakePressed;
@@ -20,6 +27,8 @@ run ThrottleControlFsm
 end signal
 end module
 
+% CruiseSpeedModule Sub-Module
+% Allows CruiseSpeed to be changed when appropriate
 module CruiseSpeedModule:
 
 run CruiseSpeedControlFSM
@@ -28,6 +37,8 @@ run CruiseSpeedResolver
 
 end module
 
+% CruiseControlModule Sub-Module
+% Manages the cruise control system state
 module CruiseControlModule:
 
 input Set;
@@ -52,6 +63,7 @@ run PedalInterface
 end signal
 end module
 
+% CruiseController Global Module
 module CruiseController:
 
 input QuickAccel, QuickDecel, Resume, On, Off, Set;
@@ -79,4 +91,4 @@ run ThrottleControlModule
 end signal
 end module
 
-
+% >>> CRUSECONTROLLER_STRL
