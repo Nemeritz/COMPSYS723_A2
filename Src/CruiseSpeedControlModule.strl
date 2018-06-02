@@ -1,58 +1,42 @@
 %NEW MODULE
-module SetCruiseSpeed:
-
-input SetSpeed;
-input Speed : float;
-output CruiseSpeed : float;
-constant SpeedMin = 30.0f : float;
-constant SpeedMax = 150.0f : float; 
-
-loop
-	present (SetSpeed) then
-		if ?Speed > SpeedMin and ?Speed < SpeedMax then
-			emit CruiseSpeed(?Speed);
-		end if;
-	end present;
-each tick;
-
-end module
-
-%NEW MODULE
-module QuickDecelCruiseSpeed:
-
-input QuickDecel;
-input Speed : float;
-output CruiseSpeed : float;
-constant SpeedInc = 2.5f : float; 
-constant SpeedMin = 30.0f : float;
-
-loop
-	present (QuickDecel) then
-		if (?Speed - SpeedInc) > SpeedMin then
-			emit CruiseSpeed(?Speed - SpeedInc);
-		end if;
-	end present;
-each tick;
-
-end module
-
-%NEW MODULE
-module QuickAccelCruiseSpeed:
+module CruiseSpeedManage:
 
 input QuickAccel;
+input QuickDecel;
+input SetSpeed;
 input Speed : float;
-output CruiseSpeed : float;
+output CruiseSpeed := 30.0f : float;
 constant SpeedInc = 2.5f : float; 
 constant SpeedMax = 150.0f : float;
+constant SpeedMin = 30.0f : float;
 
+var temp := 0.0f : float in
 loop
+	temp := pre(?CruiseSpeed);
 	present (QuickAccel) then
-		if (pre(?Speed) + SpeedInc) < SpeedMax then
-			emit CruiseSpeed(pre(?Speed) + SpeedInc);
+		if (pre(?CruiseSpeed) + SpeedInc) < SpeedMax then
+			temp := temp + SpeedInc;
 		end if;
 	end present;
-each tick;
 
+	present (QuickDecel) then
+		if (pre(?CruiseSpeed) - SpeedInc) > SpeedMin then
+			temp := temp - SpeedInc;
+		end if;
+	end present;
+
+	present (QuickDecel and QuickAccel) then
+			temp := pre(?CruiseSpeed);
+	end present;
+
+	present (SetSpeed) then
+		if ?Speed < SpeedMax and ?Speed > SpeedMin then
+			temp := ?Speed;
+		end if;
+	end present;
+	emit CruiseSpeed(temp);
+each tick;
+end var;
 end module
 
 %NEW MODULE
@@ -80,9 +64,9 @@ trap T1 in
 % Note the use of pre for achieving causal composition between the two modules
 var state := 1 : integer in
 loop
-    trap T2 in 
+    trap T2 in
 	pause;
-	    %no Cruise speed adjustment	
+	    %no Cruise speed adjustment
             if state = 1 then
                 if not (?CruiseState = 1)  then
 			state := 2;
@@ -90,7 +74,7 @@ loop
 			exit T2;
 		end if;
             end if;
-            %Cruise speed adjustment	
+            %Cruise speed adjustment
             if state = 2 then
 		if ?CruiseState = 1 then
 			state := 1;
@@ -112,22 +96,12 @@ end loop
 end var
 end trap
 end loop
+
 end module
 
 %TOP MODULE
 module CruiseSpeedControlModule:
 
-
-%input Set1;
-%input QuickAccel1;
-%input QuickDecel1;
-%input CruiseState1 : integer;
-%input Speed1 : float;
-%output CruiseSpeed1 := 40.0f : float;
-%output CruiseSpeedManage1;
-
-%signal SetSpeed1, DecelSpeed1, AccelSpeed1 
-%in
 
 input Set;
 input QuickAccel;
@@ -137,40 +111,15 @@ input Speed : float;
 output CruiseSpeed := 40.0f : float;
 output CruiseSpeedManage;
 
-signal SetSpeed, DecelSpeed, AccelSpeed 
+signal SetSpeed, DecelSpeed, AccelSpeed
 in
 
-%	loop
-%		present CruiseSpeedManage1 then
-%			%emit CruiseSpeedManage1;
-%		end present;
-%		pause
-%	end loop
-%||
-%	run CruiseSpeedControlFSM [signal CruiseState1 / CruiseState;
-%							    signal Set1 / Set;
-%							    signal QuickAccel1 / QuickAccel;
-%							    signal QuickDecel1 / QuickDecel;
-%							    signal SetSpeed1 / SetSpeed;
-%							    signal AccelSpeed1 / AccelSpeed;
-%							    signal DecelSpeed1 / DecelSpeed;
-%							    signal CruiseSpeedManage1 / CruiseSpeedManage]
 run CruiseSpeedControlFSM
 
 ||
-%	run QuickDecelCruiseSpeed [signal QuickDecel1 / QuickDecel;
-%							    signal Speed1 / Speed;
-%							    signal CruiseSpeed1 / CruiseSpeed]
-run QuickDecelCruiseSpeed
 
-||
+run CruiseSpeedManage
 
-run QuickAccelCruiseSpeed
-%	run QuickAccelCruiseSpeed [signal QuickAccel1 / QuickAccel;
-%							    signal Speed1 / Speed;
-%							    signal CruiseSpeed1 / CruiseSpeed]
-||
-	run SetCruiseSpeed
 end signal
 end module
 

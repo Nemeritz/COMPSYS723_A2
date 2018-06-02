@@ -1,17 +1,7 @@
-% This module controls the operation of the motors and is responsible for
-% Controlling the states of the cruise control
-% It essentially encodes an FSM
-% See design document for FSM details
-module CruiseSpeedModule:
+module SpeedControlFSM:
 
 input CruiseState : integer;
-input Set;
-input QuickAccel;
-input QuickDecel;
-output SetSpeed;
-output AccelSpeed;
-output DecelSpeed;
-output CruiseSpeedManage;
+output SpeedManage;
 
 % encoding of the states of an FSM performing control
 % state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
@@ -24,34 +14,72 @@ var state := 1 : integer in
 loop
     trap T2 in 
 	pause;
-	    %no Cruise speed adjustment	
+	    %no speed control management	
             if state = 1 then
-                if not (?CruiseState = 1)  then
+                if ?CruiseState = 2 then
 			state := 2;
-			emit CruiseSpeedManage;
+			emit SpeedManage;
 			exit T2;
 		end if;
             end if;
-            %Cruise speed adjustment	
+            %speed control management
             if state = 2 then
-		if ?CruiseState = 1 then
+		if not (?CruiseState = 2) then
 			state := 1;
 			exit T2;
 		end if;
-		present QuickAccel then
-			emit AccelSpeed;
-		end present;
-		present QuickDecel then
-			emit DecelSpeed;
-		end present;
-		present Set then
-			emit SetSpeed;
-		end present;
-		emit CruiseSpeedManage;
+		emit SpeedManage;
             end if;
      end trap
 end loop
 end var
 end trap
 end loop
+end module
+
+% NEW MODULE
+module cruiseregulation:
+function  regulateThrottle(integer, float, float) : float;
+
+input SpeedManage;
+input CruiseSpeed : float;
+input Speed : float;
+
+output ThrottleCmd : float;
+
+loop
+trap T1 in
+loop
+    trap T2 in 
+	pause;
+		present SpeedManage then
+			emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed));
+		else
+			emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed));
+		end present;
+     end trap
+end loop
+end trap
+end loop
+end module
+
+%TOP
+module SpeedControlModule:
+
+input CruiseState : integer;
+input CruiseSpeed : float;
+input Speed : float;
+output ThrottleCmd : float;
+
+signal SpeedManage
+
+in
+
+run cruiseregulation
+
+||
+
+run SpeedControlFSM
+
+end signal
 end module
