@@ -30,14 +30,14 @@ PARAMETERS: isGoingOn - true if the cruise control has just gone into the ON sta
             saturate - true if saturated, false otherwise
 RETURNS: throttle output (ThrottleCmd)
 */
-float regulateThrottle(bool isGoingOn, float cruiseSpeed, float vehicleSpeed)
+float regulateThrottle(int isGoingOn, float cruiseSpeed, float vehicleSpeed)
 {
 	static const float KP = 8.113;
 	static const float KI = 0.5;
 	static bool saturate = true;
 	static float iterm = 0;
 	
-	if (isGoingOn) {
+	if (isGoingOn == 1) {
 		iterm = 0;	// reset the integral action
 		saturate = true;	
 	}
