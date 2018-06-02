@@ -10,9 +10,9 @@ input Speed : float;
 
 output CruiseSpeed : float;
 
-constant SpeedMin : float;
-constant SpeedMax : float;
-constant SpeedInc : float;
+constant SpeedMin = 30.0f : float;
+constant SpeedMax = 150.0f : float;
+constant SpeedInc = 2.5f : float;
 
 signal FirstSet in
 var tempSpeed := 0.0f : float in
