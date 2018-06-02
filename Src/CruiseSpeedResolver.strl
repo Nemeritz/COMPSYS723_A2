@@ -2,6 +2,7 @@
 
 module CruiseSpeedResolver:
 
+input ManageCruiseSpeed;
 input QuickDecel;
 input QuickAccel;
 input Set;
@@ -22,7 +23,7 @@ loop
             loop
                 present
                 case Set or FirstSet do
-                    if ?Speed < SpeedMax and ?Speed > SpeedMin
+                    if ?Speed < SpeedMax and ?Speed > SpeedMin then
                         tempSpeed := ?Speed;
                     elsif ?Speed > SpeedMax then
                         tempSpeed := SpeedMax;
@@ -30,17 +31,17 @@ loop
                         tempSpeed := SpeedMin;
                     end if;
                 case QuickDecel and not QuickAccel do
-                    if ?tempSpeed + SpeedInc > SpeedMax then
-                        tempSpeed := pre(?tempSpeed) + SpeedInc;
+                    if tempSpeed + SpeedInc > SpeedMax then
+                        tempSpeed := tempSpeed + SpeedInc;
                     end if;
                 case QuickAccel and not QuickDecel do
-                    if ?tempSpeed - SpeedInc < SpeedMin then
-                        tempSpeed := pre(?tempSpeed) - SpeedInc;
+                    if tempSpeed - SpeedInc < SpeedMin then
+                        tempSpeed := tempSpeed - SpeedInc;
                     end if;
                 end present;
-                emit CruiseSpeed(?tempSpeed)
+                emit CruiseSpeed(tempSpeed);
             each tick;
-        when not ManageCruiseSpeed;
+        when [not ManageCruiseSpeed];
     end present
 each tick;
 end var

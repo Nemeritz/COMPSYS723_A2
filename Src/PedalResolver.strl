@@ -9,7 +9,7 @@ input Brake : float;
 input Accel : float;
 output BrakePressed;
 output AccelPressed;
-constant PedalsMin : float;
+constant PedalsMin = 3.0f : float;
 
 loop
     if ?Brake > PedalsMin then
@@ -17,7 +17,7 @@ loop
     end if;
     present BrakePressed else
         if ?Accel > PedalsMin then
-                emit AccPressed;
+            emit AccelPressed;
         end if;
     end present;
 each tick;

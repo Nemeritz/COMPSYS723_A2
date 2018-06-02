@@ -2,27 +2,27 @@
 
 module AutoThrottle:
 
-input RegulateSpeed
+input RegulateSpeed;
 input Speed : float;
 input CruiseSpeed : float;
 
 output AutoThrottleCmd : float;
+constant Zero = 0.0f : float;
 
 function regulateThrottle(boolean, float, float) : float;
 
-signal IsGoingOn in
 loop
     present RegulateSpeed then
-        emit IsGoingOn;
         abort
+            emit AutoThrottleCmd(regulateThrottle(true, ?CruiseSpeed, ?Speed));
+            pause;
             loop
-                emit AutoThrottleCmd(regulateThrottle(IsGoingOn, CruiseSpeed, Speed))
+                emit AutoThrottleCmd(regulateThrottle(false, ?CruiseSpeed, ?Speed));
             each tick;
-        when not RegulateSpeed;
-    end present
-    emit AutoThrottleCmd(0.0f);
+        when [not RegulateSpeed];
+    end present;
+    emit AutoThrottleCmd(Zero);
 each tick;
-end signal
 
 end module
 

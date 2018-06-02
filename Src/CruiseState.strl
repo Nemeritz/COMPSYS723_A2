@@ -17,7 +17,7 @@ output CruiseState : integer;
 
 var state := 0 : integer in
 loop
-    emit CruiseState(?state)
+    emit CruiseState(state);
     if state = 0 then  % State is OFF
         present On and not Off then
             state := 1;
@@ -32,12 +32,11 @@ loop
             emit UseAuto;
             emit ManageCruiseSpeed;
             present
-            case Brake do
+            case BrakePressed do
                 state := 2;
-                
             case AccelPressed or not SpeedOk do
                 state := 3;
-            case
+            else
                 emit RegulateSpeed;
             end present
         end present
@@ -66,6 +65,7 @@ loop
         end present
     end if
 each tick;
+end var
 
 end module
 

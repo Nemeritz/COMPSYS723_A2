@@ -6,6 +6,7 @@
 % CruiseManagement Sub-Module
 module CruiseManagement:
 
+input Resume;
 input On;
 input Off;
 input QuickDecel;
@@ -20,15 +21,15 @@ output UseAuto;
 output CruiseState : integer;
 output CruiseSpeed : float;
 
-constant SpeedMin : float;
-constant SpeedMax : float;
-constant SpeedInc : float;
-constant PedalsMin : float;
+constant SpeedMin = 30.0f : float;
+constant SpeedMax = 150.0f : float;
+constant SpeedInc = 2.5f : float;
+constant PedalsMin = 3.0f : float;
 
 signal ManageCruiseSpeed, SpeedOk, BrakePressed, AccelPressed in
 run CruiseState
 ||
-run CruseSpeedResolver
+run CrusieSpeedResolver
 ||
 run PedalResolver
 ||
@@ -48,7 +49,7 @@ input Speed : float;
 
 output ThrottleCmd : float;
 
-signal AutoThrottleCmd in
+signal AutoThrottleCmd : float in
 run AutoThrottle
 ||
 run ThrottleResolver
@@ -56,8 +57,8 @@ end signal
 
 end module
 
-% CruseController Global Module
-module CruseController:
+% CruiseController Global Module
+module CruiseController:
 
 input On;
 input Off;
@@ -69,7 +70,7 @@ input Brake : float;
 input Accel : float;
 input Speed : float;
 
-output CruseState : integer;
+output CruiseState : integer;
 output ThrottleCmd : float;
 output CruiseSpeed : float;
 
@@ -78,7 +79,7 @@ constant SpeedMax = 150.0f : float;
 constant SpeedInc = 2.5f : float;
 constant PedalsMin = 3.0f : float;
 
-signal RegulateSpeed, Override in
+signal RegulateSpeed, UseAuto in
 run CruiseManagement
 ||
 run SpeedManagement
