@@ -29,7 +29,7 @@ constant PedalsMin = 3.0f : float;
 signal ManageCruiseSpeed, SpeedOk, BrakePressed, AccelPressed in
 run CruiseState
 ||
-run CrusieSpeedResolver
+run CruiseSpeedResolver
 ||
 run PedalResolver
 ||
