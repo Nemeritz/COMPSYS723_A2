@@ -1,23 +1,27 @@
+% >>> PEDALRESOLVER_STRL
+
 % Behavior of the pedals when both are pressed is that only the
 % brake will activate (saftey feature)
 
-module PedalInterface:
+module PedalResolver:
 
 input Brake : float;
 input Accel : float;
 output BrakePressed;
 output AccelPressed;
-constant PedalThreshold = 3.0f : float;
+constant PedalsMin : float;
 
 loop
-    if ?Brake > PedalThreshold then
+    if ?Brake > PedalsMin then
         emit BrakePressed;
     end if;
     present BrakePressed else
-        if ?Accel > PedalThreshold then
+        if ?Accel > PedalsMin then
                 emit AccPressed;
         end if;
     end present;
 each tick;
 
 end module
+
+% >>> PEDALRESOLVER_STRL_END

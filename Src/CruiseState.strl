@@ -1,0 +1,72 @@
+% >>> CRUSESTATE_STRL
+
+% This module controls the CruiseState, modelled as a FSM
+module CruiseState:
+
+input On;
+input Off;
+input SpeedOk;
+input BrakePressed;
+input AccelPressed;
+input Resume;
+
+output ManageCruiseSpeed;
+output UseAuto;
+output RegulateSpeed;
+output CruiseState : integer;
+
+var state := 0 : integer in
+loop
+    emit CruiseState(?state)
+    if state = 0 then  % State is OFF
+        present On and not Off then
+            state := 1;
+            emit UseAuto;
+            emit ManageCruiseSpeed;
+            emit RegulateSpeed;
+        end present
+    elsif state = 1 then  % State is ON
+        present Off then
+            state := 0;
+        else
+            emit UseAuto;
+            emit ManageCruiseSpeed;
+            present
+            case Brake do
+                state := 2;
+                
+            case AccelPressed or not SpeedOk do
+                state := 3;
+            case
+                emit RegulateSpeed;
+            end present
+        end present
+    elsif state = 2 then  % State is STANDBY
+        present Off then
+            state := 0;
+        else
+            present Resume then
+                present AccelPressed or not SpeedOk then
+                    state := 3;
+                else
+                    state := 1;
+                    emit RegulateSpeed;
+                end present
+            end present
+        end present
+    elsif state = 3 then  % State is DISABLE
+        present Off then
+            state := 0;
+        else
+            emit UseAuto;
+            emit ManageCruiseSpeed;
+            present not AccelPressed and SpeedOk then
+                state := 1;
+            end present
+        end present
+    end if
+each tick;
+
+end module
+
+% >>> CRUSESTATE_STRL_END

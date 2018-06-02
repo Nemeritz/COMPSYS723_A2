@@ -1,0 +1,89 @@
+% >>> CRUSECONTROLLER_STRL
+
+% We define module interconnections here for ease of use in development.
+% This also gives a high level overview of the whole system at a glance.
+
+% CruiseManagement Sub-Module
+module CruiseManagement:
+
+input On;
+input Off;
+input QuickDecel;
+input QuickAccel;
+input Set;
+input Speed : float;
+input Accel : float;
+input Brake : float;
+
+output RegulateSpeed;
+output UseAuto;
+output CruiseState : integer;
+output CruiseSpeed : float;
+
+constant SpeedMin : float;
+constant SpeedMax : float;
+constant SpeedInc : float;
+constant PedalsMin : float;
+
+signal ManageCruiseSpeed, SpeedOk, BrakePressed, AccelPressed in
+run CruiseState
+||
+run CruseSpeedResolver
+||
+run PedalResolver
+||
+run SpeedLimiter
+end signal
+
+end module
+
+% SpeedManagement Sub-Module
+module SpeedManagement:
+
+input RegulateSpeed;
+input UseAuto;
+input Accel : float;
+input CruiseSpeed : float;
+input Speed : float;
+
+output ThrottleCmd : float;
+
+signal AutoThrottleCmd in
+run AutoThrottle
+||
+run ThrottleResolver
+end signal
+
+end module
+
+% CruseController Global Module
+module CruseController:
+
+input On;
+input Off;
+input Resume;
+input Set;
+input QuickDecel;
+input QuickAccel;
+input Brake : float;
+input Accel : float;
+input Speed : float;
+
+output CruseState : integer;
+output ThrottleCmd : float;
+output CruiseSpeed : float;
+
+constant SpeedMin = 30.0f : float;
+constant SpeedMax = 150.0f : float;
+constant SpeedInc = 2.5f : float;
+constant PedalsMin = 3.0f : float;
+
+signal RegulateSpeed, Override in
+run CruiseManagement
+||
+run SpeedManagement
+end signal
+
+end module
+
+% >>> CRUSECONTROLLER_STRL_END

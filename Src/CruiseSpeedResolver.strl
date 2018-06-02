@@ -1,0 +1,51 @@
+% >>> CRUISESPEEDRESOLVER_STRL
+
+module CruiseSpeedResolver:
+
+input QuickDecel;
+input QuickAccel;
+input Set;
+input Speed : float;
+
+output CruiseSpeed : float;
+
+constant SpeedMin : float;
+constant SpeedMax : float;
+constant SpeedInc : float;
+
+signal FirstSet in
+var tempSpeed := 0.0f : float in
+loop
+    present ManageCruiseSpeed then
+        emit FirstSet;
+        abort
+            loop
+                present
+                case Set or FirstSet do
+                    if ?Speed < SpeedMax and ?Speed > SpeedMin
+                        tempSpeed := ?Speed;
+                    elsif ?Speed > SpeedMax then
+                        tempSpeed := SpeedMax;
+                    elsif ?Speed < SpeedMin then
+                        tempSpeed := SpeedMin;
+                    end if;
+                case QuickDecel and not QuickAccel do
+                    if ?tempSpeed + SpeedInc > SpeedMax then
+                        tempSpeed := pre(?tempSpeed) + SpeedInc;
+                    end if;
+                case QuickAccel and not QuickDecel do
+                    if ?tempSpeed - SpeedInc < SpeedMin then
+                        tempSpeed := pre(?tempSpeed) - SpeedInc;
+                    end if;
+                end present;
+                emit CruiseSpeed(?tempSpeed)
+            each tick;
+        when not ManageCruiseSpeed;
+    end present
+each tick;
+end var
+end signal
+
+end module
+
+% >>> CRUISESPEEDRESOLVER_STRL_END

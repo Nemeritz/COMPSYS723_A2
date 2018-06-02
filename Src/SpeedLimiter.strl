@@ -1,13 +1,13 @@
 module SpeedLimiter:
 
 input Speed : float;
-output SpeedBetweenLimits;
-constant SpeedMin = 30.0f : float;
-constant SpeedMax = 150.0f : float; 
+output SpeedOk;
+constant SpeedMin : float;
+constant SpeedMax : float; 
 
 loop
     if ?Speed > SpeedMin and ?Speed < SpeedMax then
-        emit SpeedBetweenLimits;
+        emit SpeedOk;
     end if;
 each tick;
 

@@ -1,0 +1,17 @@
+module ThrottleResolver:
+
+input UseAuto;
+input AutoThrottle : float;  % Value from PID
+input Accel : float;
+
+output ThrottleCmd;
+
+loop
+    present UseAuto then
+        emit ThrottleCmd(?AutoThrottle);
+    else
+        emit ThrottleCmd(?Accel);
+    end present;
+each tick;
+
+end module

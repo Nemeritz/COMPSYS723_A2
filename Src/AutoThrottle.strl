@@ -1,0 +1,29 @@
+% >>> AUTOTHROTTLE_STRL
+
+module AutoThrottle:
+
+input RegulateSpeed
+input Speed : float;
+input CruiseSpeed : float;
+
+output AutoThrottleCmd : float;
+
+function regulateThrottle(boolean, float, float) : float;
+
+signal IsGoingOn in
+loop
+    present RegulateSpeed then
+        emit IsGoingOn;
+        abort
+            loop
+                emit AutoThrottleCmd(regulateThrottle(IsGoingOn, CruiseSpeed, Speed))
+            each tick;
+        when not RegulateSpeed;
+    end present
+    emit AutoThrottleCmd(0.0f);
+each tick;
+end signal
+
+end module
+
+% >>> AUTOTHROTTLE_STRL_END
