@@ -1,0 +1,29 @@
+module ThrottleResolver:
+function regulateThrottle(boolean, float, float) : float;
+
+input ResetPID, UseAuto;
+
+input Accel : float;
+input Brake : float;
+input CruiseSpeed : float;
+input Speed : float;
+
+output ThrottleCmd : float;
+
+var ThrottleTemp := 0.0f : float in
+loop
+	pause;
+		present UseAuto then
+			ThrottleTemp := ?Accel;
+		else 
+			present ResetPID then
+				ThrottleTemp := regulateThrottle(true, ?CruiseSpeed, ?Speed);
+			else
+				ThrottleTemp := regulateThrottle(false, ?CruiseSpeed, ?Speed);
+			end present;
+		end present;
+		emit ThrottleCmd(ThrottleTemp);
+end loop
+end var
+end module
+

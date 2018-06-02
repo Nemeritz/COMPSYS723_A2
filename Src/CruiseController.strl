@@ -1,4 +1,4 @@
-module SpeedControlModule:
+module ThrottleControlModule:
 
 input AccelPressed, BrakePressed;
 
@@ -13,14 +13,22 @@ signal ResetPID, UseAuto
 
 in
 
-run CruiseRegulation
+run ThrottleResolver
 ||
-run SpeedControlFSM
+run ThrottleControlFsm
 
 end signal
 end module
 
-module CruiseSpeedControlModule:
+module CruiseSpeedModule:
+
+run CruiseSpeedControlFSM
+||
+run CruiseSpeedResolver
+
+end module
+
+module CruiseControlModule:
 
 input Set;
 input QuickAccel;
@@ -28,14 +36,18 @@ input QuickDecel;
 input CruiseState : integer;
 input Speed : float;
 output CruiseSpeed := 0.0f : float;
-output CruiseSpeedManage;
+output ManageCruiseSpeed;
 
-signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn
+signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn, SpeedBetweenLimits
 in
 
-run CruiseSpeedControlFSM
+run CruiseSpeedModule
 ||
-run CruiseSpeedManage
+run CruiseStateControlFSM
+||
+run SpeedLimiter
+||
+run PedalInterface
 
 end signal
 end module
@@ -55,22 +67,14 @@ signal
 	SetSpeed,
 	DecelSpeed,
 	AccelSpeed,
-	SpeedBetweenLimits,
 	BrakePressed,
 	AccelPressed,
-	CruiseSpeedManage,
+	ManageCruiseSpeed,
 	ResetPID,
 	UseAuto in
-
-run CruiseSpeedControlModule
+run CruiseControlModule
 ||
-run CruiseStateControlFSM
-||
-run SpeedControlModule
-||
-run PedalInterface
-||
-run SpeedLimiter
+run ThrottleControlModule
 
 end signal
 end module

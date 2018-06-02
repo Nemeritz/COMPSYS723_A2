@@ -1,4 +1,4 @@
-module CruiseSpeedManage:
+module CruiseSpeedResolver:
 input QuickAccel;
 input QuickDecel;
 input SetSpeed;

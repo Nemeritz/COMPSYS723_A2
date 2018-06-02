@@ -7,7 +7,7 @@ input QuickDecel;
 output SetSpeed;
 output AccelSpeed;
 output DecelSpeed;
-output CruiseSpeedManage;
+output ManageCruiseSpeed;
 output FirstOn;
 
 loop
@@ -23,7 +23,7 @@ loop
             if state = 1 then
                 if not (?CruiseState = 1)  then
 			state := 2;
-			emit CruiseSpeedManage;
+			emit ManageCruiseSpeed;
 			exit T2;
 		end if;
             end if;
@@ -42,7 +42,7 @@ loop
 		present Set then
 			emit SetSpeed;
 		end present;
-		emit CruiseSpeedManage;
+		emit ManageCruiseSpeed;
             end if;
      end trap
 end loop
