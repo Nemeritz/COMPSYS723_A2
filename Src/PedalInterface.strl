@@ -15,7 +15,7 @@ loop
     end if;
     present BrakePressed else
         if ?Accel > PedalThreshold then
-                emit AccPressed;
+                emit AccelPressed;
         end if;
     end present;
 each tick;

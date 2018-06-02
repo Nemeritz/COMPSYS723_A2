@@ -1,7 +1,7 @@
 module SpeedControlFSM:
 
 input CruiseState : integer;
-output SpeedManage;
+output ResetPID;
 
 % encoding of the states of an FSM performing control
 % state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
@@ -18,7 +18,7 @@ loop
             if state = 1 then
                 if ?CruiseState = 2 then
 			state := 2;
-			emit SpeedManage;
+			emit ResetPID;
 			exit T2;
 		end if;
             end if;
@@ -28,7 +28,6 @@ loop
 			state := 1;
 			exit T2;
 		end if;
-		emit SpeedManage;
             end if;
      end trap
 end loop
@@ -41,7 +40,7 @@ end module
 module cruiseregulation:
 function  regulateThrottle(integer, float, float) : float;
 
-input SpeedManage;
+input ResetPID;
 input CruiseSpeed : float;
 input Speed : float;
 
@@ -52,10 +51,10 @@ trap T1 in
 loop
     trap T2 in 
 	pause;
-		present SpeedManage then
-			emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed));
-		else
+		present ResetPID then
 			emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed));
+		else
+			emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed));
 		end present;
      end trap
 end loop
@@ -71,7 +70,7 @@ input CruiseSpeed : float;
 input Speed : float;
 output ThrottleCmd : float;
 
-signal SpeedManage
+signal ResetPID
 
 in
 

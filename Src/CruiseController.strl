@@ -1,35 +1,29 @@
-
 %TOP MODULE
 module CruiseController:
 
-
-%input Set1;
-%input QuickAccel1;
-%input QuickDecel1;
-%input CruiseState1 : integer;
-%input Speed1 : float;
-%output CruiseSpeed1 := 40.0f : float;
-%output CruiseSpeedManage1;
-
-%signal SetSpeed1, DecelSpeed1, AccelSpeed1
-%in
-
-input Set;
-input QuickAccel;
-input QuickDecel;
-input CruiseState : integer;
+input QuickAccel, QuickDecel, Resume, On, Off, Set;
+input Accel : float;
+input Brake : float;
 input Speed : float;
-output CruiseSpeed := 40.0f : float;
-output CruiseSpeedManage;
 
-signal SetSpeed, DecelSpeed, AccelSpeed
+output CruiseSpeed := 40.0f : float;
+output ThrottleCmd := 40.0f : float;
+output CruiseState := 1 : integer;
+
+signal SetSpeed, DecelSpeed, AccelSpeed, 
+SpeedBetweenLimits, BrakePressed, AccelPressed, ResetPID, CruiseSpeedManage
 in
+
 	
 	run CruiseSpeedControlModule
 ||
 	run CruiseStateControlFSM
 ||
 	run SpeedControlModule
+||
+	run PedalInterface
+||
+	run SpeedLimiter
 
 end signal
 end module
