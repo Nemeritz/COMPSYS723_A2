@@ -5,9 +5,11 @@ input AutoThrottleCmd : float;  % Value from PID
 input Accel : float;
 
 output ThrottleCmd : float;
+output UsingAutoInThrottleResolver;
 
 loop
     present UseAuto then
+        emit UsingAutoInThrottleResolver;
         emit ThrottleCmd(?AutoThrottleCmd);
     else
         emit ThrottleCmd(?Accel);

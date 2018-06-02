@@ -48,6 +48,7 @@ input CruiseSpeed : float;
 input Speed : float;
 
 output ThrottleCmd : float;
+output UsingAutoInThrottleResolver;
 
 signal AutoThrottleCmd : float in
 run AutoThrottle
@@ -73,6 +74,7 @@ input Speed : float;
 output CruiseState : integer;
 output ThrottleCmd : float;
 output CruiseSpeed : float;
+output UsingAutoInThrottleResolver;
 
 constant SpeedMin = 30.0f : float;
 constant SpeedMax = 150.0f : float;
