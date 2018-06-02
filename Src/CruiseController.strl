@@ -6,15 +6,28 @@ input Accel : float;
 input Brake : float;
 input Speed : float;
 
-output CruiseSpeed := 40.0f : float;
-output ThrottleCmd := 40.0f : float;
-output CruiseState := 1 : integer;
+output CruiseSpeed := 0.0f : float;
+output ThrottleCmd := 0.0f : float;
+output CruiseState1 := 1 : integer;
+output ResetPID1, UseAuto1;
 
 signal SetSpeed, DecelSpeed, AccelSpeed, 
-SpeedBetweenLimits, BrakePressed, AccelPressed, ResetPID, CruiseSpeedManage
+SpeedBetweenLimits, BrakePressed, AccelPressed, CruiseSpeedManage, ResetPID, UseAuto
 in
 
-	
+signal CruiseState := 1 : integer in
+loop
+	pause;
+	emit CruiseState1(?CruiseState); 
+	present ResetPID then
+		emit ResetPID1;
+	end present;		
+	present UseAuto then
+		emit UseAuto1;
+	end present;			
+end loop
+
+||	
 	run CruiseSpeedControlModule
 ||
 	run CruiseStateControlFSM
@@ -25,6 +38,7 @@ in
 ||
 	run SpeedLimiter
 
+end signal
 end signal
 end module
 

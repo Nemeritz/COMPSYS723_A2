@@ -1,15 +1,11 @@
 module SpeedControlFSM:
 
 input CruiseState : integer;
-output ResetPID;
+output ResetPID, UseAuto;
 
-% encoding of the states of an FSM performing control
-% state 1 = off, state 2 = on, state 3 = standby and state 4 = disabled
-% Note the use of pre on request input to enable composition with request resolver
-% initial condition
 loop
 trap T1 in
-% Note the use of pre for achieving causal composition between the two modules
+%
 var state := 1 : integer in
 loop
     trap T2 in 
@@ -19,6 +15,7 @@ loop
                 if ?CruiseState = 2 then
 			state := 2;
 			emit ResetPID;
+			emit UseAuto;
 			exit T2;
 		end if;
             end if;
@@ -28,6 +25,7 @@ loop
 			state := 1;
 			exit T2;
 		end if;
+		emit UseAuto;
             end if;
      end trap
 end loop
@@ -40,11 +38,16 @@ end module
 module cruiseregulation:
 function  regulateThrottle(integer, float, float) : float;
 
-input ResetPID;
+input ResetPID, BrakePressed, AccelPressed, UseAuto;
+
+input Accel : float;
+input Brake : float;
 input CruiseSpeed : float;
 input Speed : float;
 
 output ThrottleCmd : float;
+
+var ThrottleTemp := 0.0f : float in
 
 loop
 trap T1 in
@@ -52,25 +55,41 @@ loop
     trap T2 in 
 	pause;
 		present ResetPID then
-			emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed));
+			ThrottleTemp := regulateThrottle(1, ?CruiseSpeed, ?Speed);
 		else
-			emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed));
+			ThrottleTemp := regulateThrottle(0, ?CruiseSpeed, ?Speed);
 		end present;
+
+		present not UseAuto then
+			present AccelPressed then
+				ThrottleTemp := ?Accel;
+			end present;
+			
+			present BrakePressed then
+				ThrottleTemp := 0.0f;
+			end present;
+		end present;
+		emit ThrottleCmd(ThrottleTemp);
      end trap
 end loop
 end trap
 end loop
+end var
 end module
 
 %TOP
 module SpeedControlModule:
 
+input AccelPressed, BrakePressed;
+
+input Accel : float;
+input Brake : float;
 input CruiseState : integer;
 input CruiseSpeed : float;
 input Speed : float;
 output ThrottleCmd : float;
 
-signal ResetPID
+signal ResetPID, UseAuto
 
 in
 
