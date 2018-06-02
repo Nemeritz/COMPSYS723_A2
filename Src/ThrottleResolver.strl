@@ -15,7 +15,7 @@ output ThrottleCmd : float;
 var ThrottleTemp := 0.0f : float in
 loop
 	pause;
-		present UseAuto then
+		present not UseAuto then
 			ThrottleTemp := ?Accel;
 		else 
 			present ResetPID then
