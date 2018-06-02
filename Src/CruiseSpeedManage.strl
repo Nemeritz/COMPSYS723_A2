@@ -1,0 +1,46 @@
+module CruiseSpeedManage:
+input QuickAccel;
+input QuickDecel;
+input SetSpeed
+input FirstOn;
+input Speed : float;
+output CruiseSpeed := 30.0f : float;
+constant SpeedInc = 2.5f : float; 
+constant SpeedMax = 150.0f : float;
+constant SpeedMin = 30.0f : float;
+
+var temp := 0.0f : float in
+
+await FirstOn do
+	emit CruiseSpeed(?Speed)
+end await;
+
+pause;
+
+loop
+	temp := pre(?CruiseSpeed);
+	present (QuickAccel) then
+		if (pre(?CruiseSpeed) + SpeedInc) < SpeedMax then
+			temp := temp + SpeedInc;
+		end if;
+	end present;
+
+	present (QuickDecel) then
+		if (pre(?CruiseSpeed) - SpeedInc) > SpeedMin then
+			temp := temp - SpeedInc;
+		end if;
+	end present;
+
+	present (QuickDecel and QuickAccel) then
+			temp := pre(?CruiseSpeed);
+	end present;
+
+	present (SetSpeed) then
+		if ?Speed < SpeedMax and ?Speed > SpeedMin then
+			temp := ?Speed;
+		end if;
+	end present;
+	emit CruiseSpeed(temp);
+each tick;
+end var;
+end module

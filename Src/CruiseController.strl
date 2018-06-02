@@ -1,4 +1,45 @@
-%TOP MODULE
+module SpeedControlModule:
+
+input AccelPressed, BrakePressed;
+
+input Accel : float;
+input Brake : float;
+input CruiseState : integer;
+input CruiseSpeed : float;
+input Speed : float;
+output ThrottleCmd : float;
+
+signal ResetPID, UseAuto
+
+in
+
+run CruiseRegulation
+||
+run SpeedControlFSM
+
+end signal
+end module
+
+module CruiseSpeedControlModule:
+
+input Set;
+input QuickAccel;
+input QuickDecel;
+input CruiseState : integer;
+input Speed : float;
+output CruiseSpeed := 0.0f : float;
+output CruiseSpeedManage;
+
+signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn
+in
+
+run CruiseSpeedControlFSM
+||
+run CruiseSpeedManage
+
+end signal
+end module
+
 module CruiseController:
 
 input QuickAccel, QuickDecel, Resume, On, Off, Set;
@@ -8,35 +49,28 @@ input Speed : float;
 
 output CruiseSpeed := 0.0f : float;
 output ThrottleCmd := 0.0f : float;
-output CruiseState1 := 1 : integer;
-output ResetPID1, UseAuto1;
+output CruiseState := 1 : integer;
 
-signal SetSpeed, DecelSpeed, AccelSpeed, 
-SpeedBetweenLimits, BrakePressed, AccelPressed, CruiseSpeedManage, ResetPID, UseAuto
-in
+signal 
+	SetSpeed,
+	DecelSpeed,
+	AccelSpeed,
+	SpeedBetweenLimits,
+	BrakePressed,
+	AccelPressed,
+	CruiseSpeedManage,
+	ResetPID,
+	UseAuto in
 
-signal CruiseState := 1 : integer in
-loop
-	pause;
-	emit CruiseState1(?CruiseState); 
-	present ResetPID then
-		emit ResetPID1;
-	end present;		
-	present UseAuto then
-		emit UseAuto1;
-	end present;			
-end loop
-
-||	
-	run CruiseSpeedControlModule
+run CruiseSpeedControlModule
 ||
-	run CruiseStateControlFSM
+run CruiseStateControlFSM
 ||
-	run SpeedControlModule
+run SpeedControlModule
 ||
-	run PedalInterface
+run PedalInterface
 ||
-	run SpeedLimiter
+run SpeedLimiter
 
 end signal
 end signal
