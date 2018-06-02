@@ -1,4 +1,7 @@
+% >>> CRUISESPEEDRESOLVER_STRL
+
 module CruiseSpeedResolver:
+
 input QuickAccel;
 input QuickDecel;
 input SetSpeed;
@@ -43,4 +46,7 @@ loop
 	emit CruiseSpeed(temp);
 each tick;
 end var;
+
 end module
+
+% >>> CRUISESPEEDRESOLVER_STRL_END

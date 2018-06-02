@@ -1,3 +1,5 @@
+% >>> PEDALINTERFACE_STRL
+
 % Behavior of the pedals when both are pressed is that only the
 % brake will activate (saftey feature)
 
@@ -5,8 +7,10 @@ module PedalInterface:
 
 input Brake : float;
 input Accel : float;
+
 output BrakePressed;
 output AccelPressed;
+
 constant PedalThreshold = 3.0f : float;
 
 loop
@@ -21,3 +25,5 @@ loop
 each tick;
 
 end module
+
+% >>> PEDALINTERFACE_STRL_END

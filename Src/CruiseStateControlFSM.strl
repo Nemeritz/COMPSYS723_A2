@@ -1,3 +1,5 @@
+% >>> CRUISESTATECONTROLFSM_STRL
+
 module CruiseStateControlFSM:
 
 input AccelPressed;
@@ -9,8 +11,6 @@ output CruiseState := 1 : integer;
 
 input SpeedBetweenLimits;
 
-loop
-trap T1 in
 var state := 1 : integer in
 loop
     trap T2 in
@@ -84,6 +84,7 @@ loop
      end trap
 end loop
 end var
-end trap
-end loop
+
 end module
+
+% >>> CRUISESTATECONTROLFSM_STRL_END

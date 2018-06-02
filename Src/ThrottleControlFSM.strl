@@ -1,3 +1,5 @@
+% >>> THROTTLECONTROLFSM_STRL_END
+
 module ThrottleControlFSM:
 
 input CruiseState : integer;
@@ -29,4 +31,7 @@ loop
      end trap
 end loop
 end var
+
 end module
+
+% >>> THROTTLECONTROLFSM_STRL_END
