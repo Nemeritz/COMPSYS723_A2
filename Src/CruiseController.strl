@@ -22,7 +22,7 @@ in
 
 run ThrottleResolver
 ||
-run ThrottleControlFsm
+run ThrottleControlFSM
 
 end signal
 end module
@@ -31,25 +31,42 @@ end module
 % Allows CruiseSpeed to be changed when appropriate
 module CruiseSpeedModule:
 
+input CruiseState : integer;
+input Set;
+input QuickAccel;
+input QuickDecel;
+output ManageCruiseSpeed;
+
+input Speed : float;
+output CruiseSpeed := 30.0f : float;
+
+signal SetSpeed, FirstOn, AccelSpeed, DecelSpeed
+in
+
 run CruiseSpeedControlFSM
 ||
 run CruiseSpeedResolver
 
+end signal
 end module
 
 % CruiseControlModule Sub-Module
 % Manages the cruise control system state
 module CruiseControlModule:
 
+input On, Off, Resume;
 input Set;
 input QuickAccel;
 input QuickDecel;
 input CruiseState : integer;
 input Speed : float;
+input Accel : float;
+input Brake : float;
 output CruiseSpeed := 0.0f : float;
 output ManageCruiseSpeed;
 
-signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn, SpeedBetweenLimits
+
+signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn, SpeedBetweenLimits, AccelPressed, BrakePressed
 in
 
 run CruiseSpeedModule
