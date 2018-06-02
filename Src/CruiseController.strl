@@ -73,7 +73,6 @@ run PedalInterface
 run SpeedLimiter
 
 end signal
-end signal
 end module
 
 

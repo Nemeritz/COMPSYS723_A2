@@ -1,7 +1,7 @@
 module CruiseSpeedManage:
 input QuickAccel;
 input QuickDecel;
-input SetSpeed
+input SetSpeed;
 input FirstOn;
 input Speed : float;
 output CruiseSpeed := 30.0f : float;
