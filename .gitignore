@@ -58,3 +58,7 @@ dkms.conf
 *_data.c
 !**/SimpleLift_data.c
 !**/CruiseController_data.c
+
+\.idea/
+
+Build/

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+#define boolean bool
 /*
 DESCRIPTION: Saturate the throttle command to limit the acceleration.
 PARAMETERS: throttleIn - throttle input
@@ -15,4 +16,4 @@ PARAMETERS: isGoingOn - true if the cruise control has just gone into the ON sta
             saturate - true if saturated, false otherwise
 RETURNS: throttle output (ThrottleCmd)
 */
-float regulateThrottle(int isGoingOn, float cruiseSpeed, float vehicleSpeed);
+float regulateThrottle(bool isGoingOn, float cruiseSpeed, float vehicleSpeed);
