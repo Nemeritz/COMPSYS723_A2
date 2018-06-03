@@ -13,6 +13,7 @@ output FirstOn;
 
 var state := 2 : integer in
 loop
+    trap T2 in
 	pause;
 	    %no Cruise speed adjustment
             if state = 1 then

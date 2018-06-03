@@ -15,13 +15,6 @@ constant SpeedMax = 150.0f : float;
 constant SpeedMin = 30.0f : float;
 
 var temp := 0.0f : float in
-
-await FirstOn do
-	emit CruiseSpeed(?Speed)
-end await;
-
-pause;
-
 loop
 	present FirstOn then
 		temp := ?Speed;

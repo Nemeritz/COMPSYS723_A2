@@ -15,14 +15,13 @@ output ThrottleCmd : float;
 var ThrottleTemp := 0.0f : float in
 loop
 	pause;
+		present ResetPID then
+			ThrottleTemp := regulateThrottle(true, ?CruiseSpeed, ?Speed);
+		else
+			ThrottleTemp := regulateThrottle(false, ?CruiseSpeed, ?Speed);
+		end present;
 		present not UseAuto then
 			ThrottleTemp := ?Accel;
-		else 
-			present ResetPID then
-				ThrottleTemp := regulateThrottle(true, ?CruiseSpeed, ?Speed);
-			else
-				ThrottleTemp := regulateThrottle(false, ?CruiseSpeed, ?Speed);
-			end present;
 		end present;
 		emit ThrottleCmd(ThrottleTemp);
 end loop
