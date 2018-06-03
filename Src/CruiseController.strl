@@ -7,10 +7,7 @@
 % Manages the speed of the vehicle via PID algorithm or via Accelerator
 module ThrottleControlModule:
 
-input AccelPressed, BrakePressed;
-
 input Accel : float;
-input Brake : float;
 input CruiseState : integer;
 input CruiseSpeed : float;
 input Speed : float;
@@ -37,7 +34,7 @@ input Speed : float;
 input CruiseState : integer;
 
 output ManageCruiseSpeed;
-output CruiseSpeed := 30.0f : float;
+output CruiseSpeed := 0.0f : float;
 
 constant SpeedInc = 2.5f : float; 
 constant SpeedMax = 150.0f : float;
@@ -53,36 +50,21 @@ run CruiseSpeedResolver
 end signal
 end module
 
-% CruiseControlModule Sub-Module
-% Manages the cruise control system state
-module CruiseControlModule:
-
-input On, Off, Resume;
-input Set;
-input QuickAccel;
-input QuickDecel;
-input CruiseState : integer;
+%Computational Sub Module
+module ComputationalModule:
+input QuickAccel, QuickDecel, Set;
 input Speed : float;
 input Accel : float;
-input Brake : float;
+input CruiseState := 1 : integer;
 
 output CruiseSpeed := 0.0f : float;
-output ManageCruiseSpeed;
+output ThrottleCmd := 0.0f : float;
 
-constant SpeedMax = 150.0f : float;
-constant SpeedMin = 30.0f : float;
-constant PedalThreshold = 3.0f : float;
-
-signal SetSpeed, DecelSpeed, AccelSpeed, FirstOn, SpeedBetweenLimits, AccelPressed, BrakePressed
-in
+signal ManageCruiseSpeed in
 
 run CruiseSpeedModule
 ||
-run CruiseStateControlFSM
-||
-run SpeedLimiter
-||
-run PedalInterface
+run ThrottleControlModule
 
 end signal
 end module
@@ -110,12 +92,15 @@ signal
 	AccelSpeed,
 	BrakePressed,
 	AccelPressed,
+	SpeedBetweenLimits,
 	ManageCruiseSpeed,
 	ResetPID,
 	UseAuto in
-run CruiseControlModule
+run ComputationalModule
 ||
-run ThrottleControlModule
+run InterfaceModule
+||
+run CruiseStateControlFSM
 
 end signal
 end module

@@ -6,7 +6,6 @@ function regulateThrottle(boolean, float, float) : float;
 
 input ResetPID, UseAuto;
 input Accel : float;
-input Brake : float;
 input CruiseSpeed : float;
 input Speed : float;
 

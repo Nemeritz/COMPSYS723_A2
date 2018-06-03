@@ -1,0 +1,18 @@
+%Module of utility and interface
+
+module InterfaceModule:
+
+input Speed : float;
+input Brake : float;
+input Accel : float;
+
+output BrakePressed;
+output AccelPressed;
+output SpeedBetweenLimits;
+
+run PedalInterface
+||
+run SpeedLimiter
+
+end module
+% >>> INTERFACEMODULE_STRL_END
