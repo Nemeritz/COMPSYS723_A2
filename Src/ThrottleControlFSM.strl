@@ -3,7 +3,7 @@
 module ThrottleControlFSM:
 
 input CruiseState : integer;
-output ResetPID, UseAuto;
+output ResetPI, UseAuto;
 
 var state := 1 : integer in
 loop
@@ -13,7 +13,7 @@ loop
 		if state = 1 then
 			if ?CruiseState = 2 then
 				state := 2;
-				emit ResetPID;
+				emit ResetPI;
 				emit UseAuto;
 				exit T2;
 			end if;

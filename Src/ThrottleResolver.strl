@@ -4,7 +4,7 @@ module ThrottleResolver:
 
 function regulateThrottle(boolean, float, float) : float;
 
-input ResetPID, UseAuto;
+input ResetPI, UseAuto;
 input Accel : float;
 input CruiseSpeed : float;
 input Speed : float;
@@ -14,7 +14,7 @@ output ThrottleCmd : float;
 var ThrottleTemp := 0.0f : float in
 loop
 	pause;
-		present ResetPID then
+		present ResetPI then
 			ThrottleTemp := regulateThrottle(true, ?CruiseSpeed, ?Speed);
 		else
 			ThrottleTemp := regulateThrottle(false, ?CruiseSpeed, ?Speed);

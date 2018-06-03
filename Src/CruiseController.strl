@@ -14,7 +14,7 @@ input Speed : float;
 
 output ThrottleCmd : float;
 
-signal ResetPID, UseAuto in
+signal ResetPI, UseAuto in
 
 run ThrottleResolver
 ||
@@ -94,7 +94,7 @@ signal
 	AccelPressed,
 	SpeedBetweenLimits,
 	ManageCruiseSpeed,
-	ResetPID,
+	ResetPI,
 	UseAuto in
 run ComputationalModule
 ||
