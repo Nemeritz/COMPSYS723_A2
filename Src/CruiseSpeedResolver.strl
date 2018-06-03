@@ -23,26 +23,21 @@ end await;
 pause;
 
 loop
-	temp := pre(?CruiseSpeed);
-	present (QuickAccel) then
-		if (pre(?CruiseSpeed) + SpeedInc) < SpeedMax then
-			temp := temp + SpeedInc;
-		end if;
+	present FirstOn then
+		temp := ?Speed;
 	end present;
-
-	present (QuickDecel) then
-		if (pre(?CruiseSpeed) - SpeedInc) > SpeedMin then
-			temp := temp - SpeedInc;
-		end if;
-	end present;
-
-	present (QuickDecel and QuickAccel) then
-			temp := pre(?CruiseSpeed);
-	end present;
-
-	present (SetSpeed) then
+	present 
+	case (SetSpeed) do
 		if ?Speed < SpeedMax and ?Speed > SpeedMin then
 			temp := ?Speed;
+		end if;
+	case (QuickAccel and not QuickDecel) do
+		if (temp + SpeedInc) < SpeedMax then
+			temp := temp + SpeedInc;
+		end if;
+	case (QuickDecel and not QuickAccel) do
+		if (temp - SpeedInc) > SpeedMin then
+			temp := temp - SpeedInc;
 		end if;
 	end present;
 	emit CruiseSpeed(temp);
