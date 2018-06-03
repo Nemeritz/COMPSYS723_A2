@@ -7,9 +7,7 @@ input BrakePressed;
 input Resume;
 input Off;
 input On;
-
 output CruiseState := 1 : integer;
-output AutoThrottle;
 
 input SpeedBetweenLimits;
 
@@ -22,7 +20,6 @@ loop
 			present (On and SpeedBetweenLimits) then
 				state := 2;
 				emit CruiseState(state);
-				emit AutoThrottle;
 				exit T2;
 			end present;
 			emit CruiseState(state);
@@ -44,7 +41,6 @@ loop
 				emit CruiseState(state);
 				exit T2;
 			end present;
-			emit AutoThrottle;
 			emit CruiseState(state);
 		end if;
 		% Cruise Control Standby
@@ -57,7 +53,6 @@ loop
 			present Resume and ((not AccelPressed) and SpeedBetweenLimits) then
 				state := 2;
 				emit CruiseState(state);
-				emit AutoThrottle;
 				exit T2;
 			end present;
 			present (Resume and ((not SpeedBetweenLimits) or AccelPressed)) then
@@ -82,7 +77,6 @@ loop
 			present (SpeedBetweenLimits and (not AccelPressed)) then
 				state := 2;
 				emit CruiseState(state);
-				emit AutoThrottle;
 				exit T2;
 			end present;
 			emit CruiseState(state);

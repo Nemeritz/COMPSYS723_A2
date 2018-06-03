@@ -2,7 +2,7 @@
 
 module ThrottleControlFSM:
 
-input AutoThrottle;
+input CruiseState : integer;
 output ResetPID, UseAuto;
 
 var state := 1 : integer in
@@ -11,22 +11,22 @@ loop
 		pause;
 	    %no speed control management	
 		if state = 1 then
-			present AutoThrottle then
+			if ?CruiseState = 2 then
 				state := 2;
 				emit ResetPID;
 				emit UseAuto;
 				exit T2;
-			end present;
+			end if;
 		end if;
 		%speed control management
 		if state = 2 then
-			present AutoThrottle then
-				emit UseAuto;
-				exit T2;
-			else
+			if not (?CruiseState = 2) then
 				state := 1;
 				exit T2;
-			end present;
+			else
+				emit UseAuto;
+				exit T2;
+			end if;
 		end if;
      end trap
 end loop

@@ -11,9 +11,9 @@ input AccelPressed, BrakePressed;
 
 input Accel : float;
 input Brake : float;
+input CruiseState : integer;
 input CruiseSpeed : float;
 input Speed : float;
-input AutoThrottle;
 
 output ThrottleCmd : float;
 
