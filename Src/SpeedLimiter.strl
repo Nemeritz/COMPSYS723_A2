@@ -1,7 +1,10 @@
+% >>> SPEEDLIMITER_STRL
+
 module SpeedLimiter:
 
 input Speed : float;
 output SpeedBetweenLimits;
+
 constant SpeedMin = 30.0f : float;
 constant SpeedMax = 150.0f : float; 
 
@@ -12,3 +15,5 @@ loop
 each tick;
 
 end module
+
+% >>> SPEEDLIMITER_STRL_END

@@ -1,53 +1,55 @@
 module CruiseSpeedControlFSM:
 
-input CruiseState : integer;
 input Set;
 input QuickAccel;
 input QuickDecel;
+input CruiseState : integer;
+
 output SetSpeed;
 output AccelSpeed;
 output DecelSpeed;
 output ManageCruiseSpeed;
 output FirstOn;
 
-loop
-trap T1 in
 var state := 2 : integer in
 loop
-    trap T2 in
 	pause;
-	    %no Cruise speed adjustment
-            if state = 1 then
-                if not (?CruiseState = 1)  then
-			state := 2;
-			emit ManageCruiseSpeed;
-			if ?CruiseState = 2 then
-				emit FirstOn;
-			end if;
-			exit T2;
-		end if;
-            end if;
-            %Cruise speed adjustment
-            if state = 2 then
-		if ?CruiseState = 1 then
-			state := 1;
-			exit T2;
-		end if;
-		present QuickAccel then
-			emit AccelSpeed;
-		end present;
-		present QuickDecel then
-			emit DecelSpeed;
-		end present;
-		present Set then
-			emit SetSpeed;
-		end present;
-		emit ManageCruiseSpeed;
-            end if;
-     end trap
-end loop
+	if ?CruiseState = 2 then
+		emit FirstOn;
+		loop
+			trap T2 in
+			pause;
+				% No Cruise speed adjustment
+				if state = 1 then
+					if not (?CruiseState = 1) then
+						state := 2;
+						emit ManageCruiseSpeed;
+					end if;
+					exit T2;
+				end if;
+				% Cruise speed adjustment
+				if state = 2 then
+					if ?CruiseState = 1 then
+						state := 1;
+						exit T2;
+					else
+						present QuickAccel then
+							emit AccelSpeed;
+						end present;
+						present QuickDecel then
+							emit DecelSpeed;
+						end present;
+						present Set then
+							emit SetSpeed;
+						end present;
+						emit ManageCruiseSpeed;
+					end if;
+					exit T2;
+				end if;
+			end trap
+		end loop
+	end if;
+end loop;
 end var
-end trap
-end loop
 
 end module
